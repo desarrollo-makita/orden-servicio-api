@@ -82,13 +82,14 @@ async function ordenServicio(req, res) {
                    
                 }else
                 {
-                    res.status(404).json({mensaje : "no existen pedidos para actualizar"});
+                    res.status(404).json({mensaje : "No existen pedidos para actualizar"});
                 }
             }
         }
     } catch (error) {
         logger.error(`Error al procesar las Ordenes de Servicio [ordenServicioController]: ${error.message}`);
-        // Enviar el correo electrónico mediante el procedimiento almacenado
+        
+        // Enviar el correo electrónico en caso de un problema
         await sendEmailWithDB(error.message);
         
         if (error.response && error.response.data) {
