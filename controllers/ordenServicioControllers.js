@@ -1,5 +1,6 @@
 const axios = require('axios');
 const logger = require('../config/logger.js');
+const { sendEmailWithDB } = require('../config/email.js');
 
 
 /**
@@ -86,8 +87,9 @@ async function ordenServicio(req, res) {
             }
         }
     } catch (error) {
-        console.log("Error", error);
         logger.error(`Error al procesar las Ordenes de Servicio [ordenServicioController]: ${error.message}`);
+        // Enviar el correo electrónico mediante el procedimiento almacenado
+        await sendEmailWithDB(error.message);
         
         if (error.response && error.response.data) {
             const mensajeError = error.response.data.mensaje || error.response.data.error || 'Error desconocido';
