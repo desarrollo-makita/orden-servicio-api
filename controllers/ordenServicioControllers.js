@@ -90,7 +90,7 @@ async function ordenServicio(req, res) {
         logger.error(`Error al procesar las Ordenes de Servicio [ordenServicioController]: ${error.message}`);
         
         // Enviar el correo electrónico en caso de un problema
-        await sendEmailWithDB(error.message);
+        await sendEmailWithDB(error);
         
         if (error.response && error.response.data) {
             const mensajeError = error.response.data.mensaje || error.response.data.error || 'Error desconocido';
