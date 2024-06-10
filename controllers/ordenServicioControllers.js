@@ -1,6 +1,7 @@
 const axios = require('axios');
 const logger = require('../config/logger.js');
 const { sendEmailWithDB } = require('../config/email.js');
+require('dotenv').config();
 
 
 /**
@@ -16,14 +17,14 @@ async function ordenServicio(req, res) {
         
         //microservicio obtener-pedidos
         logger.info(`Ejecuta microservcio obtener-pedidos-ms`); 
-        const response = await axios.get('http://172.16.1.206:3005/ms/obtener-pedidos');
+        const response = await axios.get(`http://172.16.1.206:${process.env.PORT_OBTENER_PEDIDOS}/ms/obtener-pedidos`);
         logger.debug(`Respuesta microservcio obtener-pedidos-ms ${JSON.stringify(response.data)}`); 
        
         if(response.data.pedidos){   
            
             //microservicio obtener-pedidos
             logger.info(`Ejecuta microservcio obtener-orden-servicio-ms`); 
-            const osList = await axios.post('http://172.16.1.206:3006/ms/obtener-orden-servicio', response.data);
+            const osList = await axios.post(`http://172.16.1.206:${process.env.PORT_OBTENER_ORDENES}/ms/obtener-orden-servicio`, response.data);
             logger.debug(`Respuesta microservcio obtener-orden-servicio-ms ${JSON.stringify(osList.data)}`); 
             
             if(osList.data.length > 0){
@@ -35,14 +36,14 @@ async function ordenServicio(req, res) {
                 
                 // microservicio preparar data pedidos
                 logger.info(`Ejecuta microservcio preparar-pedidos-ms`); 
-                const arrayPedidos = await axios.post('http://172.16.1.206:3007/ms/preparar-pedidos',data);
+                const arrayPedidos = await axios.post(`http://172.16.1.206:${process.env.PORT_PREPARAR_PEDIDOS}/ms/preparar-pedidos`,data);
                 logger.debug(`Respuesta de microservicio preparar-pedidos ${JSON.stringify(arrayPedidos.data)}`);
                 
                 if(arrayPedidos.data.length > 0)
                 {
                     // microservicio insertar-pedidos-ms
                     logger.info(`Ejecuta microservcio insertar-pedidos-ms`); 
-                    const responsePedidos = await axios.post('http://172.16.1.206:3008/ms/insertar-pedidos',arrayPedidos.data);
+                    const responsePedidos = await axios.post(`http://172.16.1.206:${process.env.PORT_INSERTAR_PEDIDOS}/ms/insertar-pedidos`,arrayPedidos.data);
                     logger.debug(`Respuesta de microservicio insertar-pedidos ${JSON.stringify(responsePedidos.data)}`);
                   
                     if (responsePedidos.data.length > 0) {
@@ -53,24 +54,24 @@ async function ordenServicio(req, res) {
                         
                         // microservicio preparar-pedidos-detalle-ms
                         logger.info(`Ejecuta microservcio preparar-pedidos-detalle-ms`); 
-                        const arrayPedidosItem = await axios.post('http://172.16.1.206:3009/ms/preparar-pedidos-detalle', data);
+                        const arrayPedidosItem = await axios.post(`http://172.16.1.206:${process.env.PORT_PREPARAR_PEDIDOS_DETALLE}/ms/preparar-pedidos-detalle`, data);
                         logger.debug(`Respuesta de microservicio preparar-pedidos-detalle-ms ${JSON.stringify(arrayPedidosItem.data)}`);
                          
                         // microservicio preparar-pedidos-detalle-ms
                         logger.info(`Ejecuta microservcio insertar-pedidos-detalle-ms`); 
-                        const responsePedidosDet = await axios.post('http://172.16.1.206:4001/ms/insertar-pedidos-detalle', arrayPedidosItem.data );
+                        const responsePedidosDet = await axios.post(`http://172.16.1.206:${process.env.PORT_INSERTAR_PEDIDOS_DETALLE}/ms/insertar-pedidos-detalle`, arrayPedidosItem.data );
                         logger.debug(`Respuesta de microservicio insertar-pedidos-detalle-ms ${JSON.stringify(responsePedidosDet.data)}`);
                         
                         for(element of responsePedidosDet.data){
                             if (element.returnValue === 1 && element.tipoDocumento === 'NOTA DE VTA INTERNA') {
                                  // microservicio crear-documento-nvi-ms
                                 logger.info(`Ejecuta microservcio crear-documento-nvi-ms`); 
-                                const crearDocumento = await axios.post('http://172.16.1.206:4002/ms/crear-documento-nvi', element );
+                                const crearDocumento = await axios.post(`http://172.16.1.206:${process.env.PORT_CREAR_DOC_NVI}/ms/crear-documento-nvi`, element );
                                 logger.debug(`Respuesta de microservicio crear-documento-nvi-ms ${crearDocumento}`);
                             }else{
                                 // microservicio crea-nota-venta
                                 logger.info(`Ejecuta microservcio crea-nota-venta-ms`); 
-                                const crearDocumentoVenta = await axios.post('http://localhost:4003/ms/crear-documento-nota-venta', element );
+                                const crearDocumentoVenta = await axios.post(`http://localhost:${process.env.PORT_CREAR_DOC_NV}/ms/crear-documento-nota-venta`, element );
                                 logger.debug(`Respuesta de microservicio crea-nota-venta-ms ${crearDocumentoVenta}`);
                                 
                             }
