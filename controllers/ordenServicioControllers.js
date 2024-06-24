@@ -94,6 +94,8 @@ async function ordenServicio(req, res) {
                     }else{
                         res.status(404).json({mensaje : "No existen pedidos para actualizar"});
                     }
+                }else{
+                    res.status(404).json({mensaje : "No existen pedidos para procesar"});
                 }
             }
         }
@@ -103,7 +105,10 @@ async function ordenServicio(req, res) {
         // Enviar el correo electrónico en caso de un problema
         await sendEmailWithDB(error);
         // vuelve atras en caso de falla
-        await rolbackData(pedidosInsertados);
+        if(pedidosInsertados.length > 0){
+            await rolbackData(pedidosInsertados);
+        }
+       
         if (error.response && error.response.data) {
             const mensajeError = error.response.data.mensaje || error.response.data.error || 'Error desconocido';
             res.status(error.response.status || 500).json({ error: mensajeError });

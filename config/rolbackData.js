@@ -18,10 +18,8 @@ async function rolbackData(data) {
                 
 
         }
-
-        console.log(result)
-       
-            
+        
+        console.log("resultado rolbackData : " , result);
     } catch (err) {
         console.error('Error al borrar data mediante el procedimiento almacenado BorrarDatos:', err.message);
     } finally {
