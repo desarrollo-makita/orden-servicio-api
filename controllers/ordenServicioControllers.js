@@ -1,6 +1,7 @@
 const axios = require('axios');
 const logger = require('../config/logger.js');
 const { sendEmailWithDB } = require('../config/email.js');
+const { rolbackData } = require('../config/rolbackData.js');
 require('dotenv').config();
 
 
@@ -10,19 +11,22 @@ require('dotenv').config();
  * @param {*} res 
  */
 async function ordenServicio(req, res) {
+    let pedidosInsertados =[];
+    let pedidosNoInsertados = [];
     
     try {
-        
+
+       
         logger.info(`Iniciamos la funcion ordenServicio`); 
         
-        //microservicio obtener-pedidos
+        //microservicio obtener-pedidos-ms
         logger.info(`Ejecuta microservcio obtener-pedidos-ms`); 
         const response = await axios.get(`http://172.16.1.206:${process.env.PORT_OBTENER_PEDIDOS}/ms/obtener-pedidos`);
         logger.debug(`Respuesta microservcio obtener-pedidos-ms ${JSON.stringify(response.data)}`); 
        
         if(response.data.pedidos){   
            
-            //microservicio obtener-pedidos
+            //microservicio obtener-orden-servicio-ms
             logger.info(`Ejecuta microservcio obtener-orden-servicio-ms`); 
             const osList = await axios.post(`http://172.16.1.206:${process.env.PORT_OBTENER_ORDENES}/ms/obtener-orden-servicio`, response.data);
             logger.debug(`Respuesta microservcio obtener-orden-servicio-ms ${JSON.stringify(osList.data)}`); 
@@ -38,28 +42,36 @@ async function ordenServicio(req, res) {
                 logger.info(`Ejecuta microservcio preparar-pedidos-ms`); 
                 const arrayPedidos = await axios.post(`http://172.16.1.206:${process.env.PORT_PREPARAR_PEDIDOS}/ms/preparar-pedidos`,data);
                 logger.debug(`Respuesta de microservicio preparar-pedidos ${JSON.stringify(arrayPedidos.data)}`);
-                
                 if(arrayPedidos.data.length > 0)
                 {
+                    
                     // microservicio insertar-pedidos-ms
                     logger.info(`Ejecuta microservcio insertar-pedidos-ms`); 
                     const responsePedidos = await axios.post(`http://172.16.1.206:${process.env.PORT_INSERTAR_PEDIDOS}/ms/insertar-pedidos`,arrayPedidos.data);
                     logger.debug(`Respuesta de microservicio insertar-pedidos ${JSON.stringify(responsePedidos.data)}`);
-                  
-                    if (responsePedidos.data.length > 0) {
+                    for(resPedido of responsePedidos.data){
+                        if(resPedido.output.Insertado === 0){
+                            pedidosInsertados.push(resPedido.data);
+                        
+                        }else if(resPedido.output.Insertado === 1){
+                            pedidosNoInsertados.push(resPedido.data);
+                        }
+                    }
+                    if(pedidosInsertados.length > 0 ){
+                        
                         let data = {
-                            arrayPedidos : arrayPedidos.data,
+                            arrayPedidos : pedidosInsertados,
                             responsePedidos: responsePedidos.data
                         }
-                        
+
                         // microservicio preparar-pedidos-detalle-ms
                         logger.info(`Ejecuta microservcio preparar-pedidos-detalle-ms`); 
                         const arrayPedidosItem = await axios.post(`http://172.16.1.206:${process.env.PORT_PREPARAR_PEDIDOS_DETALLE}/ms/preparar-pedidos-detalle`, data);
                         logger.debug(`Respuesta de microservicio preparar-pedidos-detalle-ms ${JSON.stringify(arrayPedidosItem.data)}`);
-                         
-                        // microservicio preparar-pedidos-detalle-ms
+                       
+                        // microservicio insertar-pedidos-detalle-ms
                         logger.info(`Ejecuta microservcio insertar-pedidos-detalle-ms`); 
-                        const responsePedidosDet = await axios.post(`http://172.16.1.206:${process.env.PORT_INSERTAR_PEDIDOS_DETALLE}/ms/insertar-pedidos-detalle`, arrayPedidosItem.data );
+                        const responsePedidosDet = await axios.post(`http://172.16.1.206:${prosscess.env.PORT_INSERTAR_PEDIDOS_DETALLE}/ms/insertar-pedidos-detalle`, arrayPedidosItem.data );
                         logger.debug(`Respuesta de microservicio insertar-pedidos-detalle-ms ${JSON.stringify(responsePedidosDet.data)}`);
                         
                         for(element of responsePedidosDet.data){
@@ -68,7 +80,7 @@ async function ordenServicio(req, res) {
                                 logger.info(`Ejecuta microservcio crear-documento-nvi-ms`); 
                                 const crearDocumento = await axios.post(`http://172.16.1.206:${process.env.PORT_CREAR_DOC_NVI}/ms/crear-documento-nvi`, element );
                                 logger.debug(`Respuesta de microservicio crear-documento-nvi-ms ${crearDocumento}`);
-                            }else{
+                            }else if (element.returnValue === 1 && element.tipoDocumento === 'NOTA DE VENTA'){
                                 // microservicio crea-nota-venta
                                 logger.info(`Ejecuta microservcio crea-nota-venta-ms`); 
                                 const crearDocumentoVenta = await axios.post(`http://localhost:${process.env.PORT_CREAR_DOC_NV}/ms/crear-documento-nota-venta`, element );
@@ -76,14 +88,12 @@ async function ordenServicio(req, res) {
                                 
                             }
                         }
-                        
-                        res.status(200).json({mensaje : "Se generaron los Documentos con exito"});
-                        logger.info(`Fin del proceso `);                         
+                        logger.info("Fin del proceso");
+                        res.status(200).json({listaPedidosInsertados : pedidosInsertados , pedidosRepetidos : pedidosNoInsertados});
+                    
+                    }else{
+                        res.status(404).json({mensaje : "No existen pedidos para actualizar"});
                     }
-                   
-                }else
-                {
-                    res.status(404).json({mensaje : "No existen pedidos para actualizar"});
                 }
             }
         }
@@ -92,7 +102,8 @@ async function ordenServicio(req, res) {
         
         // Enviar el correo electrónico en caso de un problema
         await sendEmailWithDB(error);
-        
+        // vuelve atras en caso de falla
+        await rolbackData(pedidosInsertados);
         if (error.response && error.response.data) {
             const mensajeError = error.response.data.mensaje || error.response.data.error || 'Error desconocido';
             res.status(error.response.status || 500).json({ error: mensajeError });
