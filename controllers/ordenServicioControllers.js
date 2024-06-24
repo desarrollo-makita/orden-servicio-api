@@ -71,7 +71,7 @@ async function ordenServicio(req, res) {
                        
                         // microservicio insertar-pedidos-detalle-ms
                         logger.info(`Ejecuta microservcio insertar-pedidos-detalle-ms`); 
-                        const responsePedidosDet = await axios.post(`http://172.16.1.206:${prosscess.env.PORT_INSERTAR_PEDIDOS_DETALLE}/ms/insertar-pedidos-detalle`, arrayPedidosItem.data );
+                        const responsePedidosDet = await axios.post(`http://172.16.1.206:${process.env.PORT_INSERTAR_PEDIDOS_DETALLE}/ms/insertar-pedidos-detalle`, arrayPedidosItem.data );
                         logger.debug(`Respuesta de microservicio insertar-pedidos-detalle-ms ${JSON.stringify(responsePedidosDet.data)}`);
                         
                         for(element of responsePedidosDet.data){
