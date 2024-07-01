@@ -83,7 +83,7 @@ async function ordenServicio(req, res) {
                             }else if (element.returnValue === 1 && element.tipoDocumento === 'NOTA DE VENTA'){
                                 // microservicio crea-nota-venta
                                 logger.info(`Ejecuta microservcio crea-nota-venta-ms`); 
-                                const crearDocumentoVenta = await axios.post(`http://localhost:${process.env.PORT_CREAR_DOC_NV}/ms/crear-documento-nota-venta`, element );
+                                const crearDocumentoVenta = await axios.post(`http://172.16.1.206:${process.env.PORT_CREAR_DOC_NV}/ms/crear-documento-nota-venta`, element );
                                 logger.debug(`Respuesta de microservicio crea-nota-venta-ms ${crearDocumentoVenta}`);
                                 
                             }
