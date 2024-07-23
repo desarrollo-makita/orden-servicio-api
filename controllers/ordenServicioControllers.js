@@ -29,7 +29,13 @@ async function ordenServicio(req, res) {
             //microservicio obtener-orden-servicio-ms
             logger.info(`Ejecuta microservcio obtener-orden-servicio-ms`); 
             const osList = await axios.post(`http://172.16.1.206:${process.env.PORT_OBTENER_ORDENES}/ms/obtener-orden-servicio`, response.data);
-            logger.debug(`Respuesta microservcio obtener-orden-servicio-ms ${JSON.stringify(osList.data)}`); 
+            logger.debug(`Respuesta microservcio obtener-orden-servicio-ms ${JSON.stringify(osList.data)}`);
+            
+            //microservicio insertar-documentos-ms
+            logger.info(`Ejecuta microservcio insertar-documentos-ms`); 
+            const responseDocumentos = await axios.post(`http://172.16.1.206:${process.env.PORT_INSERTAR_DOCUMENTOS}/ms/insertar-documentos`, osList.data);
+            logger.debug(`Respuesta microservcio insertar-documentos-ms ${JSON.stringify(responseDocumentos.data)}`);
+            
             
             if(osList.data.length > 0){
 
