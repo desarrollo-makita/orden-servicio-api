@@ -31,7 +31,7 @@ async function ordenServicio(req, res) {
       //microservicio obtener-orden-servicio-ms
       logger.info(`Ejecuta microservcio obtener-orden-servicio-ms`);
       const osList = await axios.post(
-        `http://172.16.1.206:${process.env.PORT_OBTENER_ORDENES}/ms/obtener-orden-servicio`,
+        `http://172.16.1.206:3007/ms/obtener-orden-servicio`,
         response.data
       );
       logger.debug(
@@ -43,7 +43,7 @@ async function ordenServicio(req, res) {
       //microservicio insertar-documentos-ms
       logger.info(`Ejecuta microservcio insertar-documentos-ms`);
       const responseDocumentos = await axios.post(
-        `http://172.16.1.206:${process.env.PORT_INSERTAR_DOCUMENTOS}/ms/insertar-documentos`,
+        `http://172.16.1.206:3023/ms/insertar-documentos`,
         osList.data
       );
       logger.debug(
@@ -61,7 +61,7 @@ async function ordenServicio(req, res) {
         // microservicio preparar data pedidos
         logger.info(`Ejecuta microservcio preparar-pedidos-ms`);
         const arrayPedidos = await axios.post(
-          `http://172.16.1.206:${process.env.PORT_PREPARAR_PEDIDOS}/ms/preparar-pedidos`,
+          `http://172.16.1.206:3008/ms/preparar-pedidos`,
           data
         );
         logger.debug(
@@ -74,7 +74,7 @@ async function ordenServicio(req, res) {
           logger.info(`Ejecuta microservcio insertar-pedidos-ms`);
           console.log("Looooooooooooog :", arrayPedidos.data);
           const responsePedidos = await axios.post(
-            `http://172.16.1.206:${process.env.PORT_INSERTAR_PEDIDOS}/ms/insertar-pedidos`,
+            `http://172.16.1.206:3009/ms/insertar-pedidos`,
             arrayPedidos.data
           );
           logger.debug(
@@ -98,7 +98,7 @@ async function ordenServicio(req, res) {
             // microservicio preparar-pedidos-detalle-ms
             logger.info(`Ejecuta microservcio preparar-pedidos-detalle-ms`);
             const arrayPedidosItem = await axios.post(
-              `http://172.16.1.206:${process.env.PORT_PREPARAR_PEDIDOS_DETALLE}/ms/preparar-pedidos-detalle`,
+              `http://172.16.1.206:3010/ms/preparar-pedidos-detalle`,
               data
             );
             logger.debug(
@@ -110,7 +110,7 @@ async function ordenServicio(req, res) {
             // microservicio insertar-pedidos-detalle-ms
             logger.info(`Ejecuta microservcio insertar-pedidos-detalle-ms`);
             const responsePedidosDet = await axios.post(
-              `http://172.16.1.206:${process.env.PORT_INSERTAR_PEDIDOS_DETALLE}/ms/insertar-pedidos-detalle`,
+              `http://172.16.1.206:3011/ms/insertar-pedidos-detalle`,
               arrayPedidosItem.data
             );
             logger.debug(
@@ -140,7 +140,7 @@ async function ordenServicio(req, res) {
                 console.log("elemeeeeeeeeeeeeeeent : ", element);
                 logger.info(`Ejecuta microservcio crear-documento-nvi-ms`);
                 const crearDocumento = await axios.post(
-                  `http://172.16.1.206:${process.env.PORT_CREAR_DOC_NVI}/ms/crear-documento-nvi`,
+                  `http://172.16.1.206:3015/ms/crear-documento-nvi`,
                   element
                 );
                 logger.debug(
@@ -153,7 +153,7 @@ async function ordenServicio(req, res) {
                 // microservicio crea-nota-venta
                 logger.info(`Ejecuta microservcio crea-nota-venta-ms`);
                 const crearDocumentoVenta = await axios.post(
-                  `http://172.16.1.206:${process.env.PORT_CREAR_DOC_NV}/ms/crear-documento-nota-venta`,
+                  `http://172.16.1.206:3015/ms/crear-documento-nota-venta`,
                   element
                 );
                 logger.debug(
