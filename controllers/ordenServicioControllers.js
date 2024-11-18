@@ -196,6 +196,7 @@ async function ordenServicio(req, res) {
         "Error desconocido";
       res.status(error.response.status || 500).json({ error: mensajeError });
     } else {
+      console.log("Error _ " , error);
       res.status(500).json({ error: `Error en el servidor: ${error.message}` });
     }
   }
