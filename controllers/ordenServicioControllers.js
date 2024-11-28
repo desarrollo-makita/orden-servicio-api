@@ -47,8 +47,7 @@ async function ordenServicio(req, res) {
         osList.data
       );
       logger.debug(
-        `Respuesta microservcio insertar-documentos-ms ${JSON.stringify(
-          responseDocumentos.data
+        `Respuesta microservcio insertar-documentos-ms 
         )}`
       );
 
