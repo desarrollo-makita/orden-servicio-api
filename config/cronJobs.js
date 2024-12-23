@@ -23,6 +23,29 @@ cron.schedule('0 9 * * *', async () => {
     timezone: 'America/Santiago' // Configura la zona horaria
 });
 
+// Segundo cron job para las 3:00 PM
+cron.schedule('0 14 * * *', async () => {
+    logger.info('Iniciando tarea programada: ordenServicio (3:00 PM)');
+    try {
+        const req = {}; // Si necesitas datos en el req, ajusta esto
+        const res = {
+            status: (code) => ({
+                json: (data) => logger.info(`Respuesta del cron: ${JSON.stringify(data)}`)
+            }),
+        };
+
+        await ordenServicio(req, res);
+        logger.info('Tarea programada completada con éxito (3:00 PM)');
+    } catch (error) {
+        logger.error(`Error en la tarea programada (3:00 PM): ${error.message}`);
+    }
+}, {
+    timezone: 'America/Santiago' // Configura la zona horaria
+});
+
+module.exports = {
+    startCronJobs: () => logger.info('Tareas programadas iniciadas')
+};
 module.exports = {
     startCronJobs: () => logger.info('Tareas programadas iniciadas')
 };
