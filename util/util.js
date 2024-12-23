@@ -50,8 +50,8 @@ async function validarCliente(tabla, entidad) {
     let validacionCliente;
     try {
 
-        // Conectarse a la base de datos 'DTEBdQMakita'
-        await connectToDatabase('DTEBdQMakita');
+        // Conectarse a la base de datos 'BdQMakita'
+        await connectToDatabase('BdQMakita');
         const consulta = `SELECT * FROM ${tabla} WHERE Entidad= '${entidad}' and tipoEntidad = 'cliente' and vigencia = 'S'`;
         const result = await sql.query(consulta);
 
@@ -263,7 +263,7 @@ async function obtenerTipoItem(item) {
 
     try {
 
-        await connectToDatabase('DTEBdQMakita');
+        await connectToDatabase('BdQMakita');
         let tipoItem;
         const consulta = `SELECT * FROM Item where item = '${item.referencia}'`;
         const result = await sql.query(consulta);

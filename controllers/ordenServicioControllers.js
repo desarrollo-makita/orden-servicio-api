@@ -18,14 +18,8 @@ async function ordenServicio(req, res) {
 
     //microservicio obtener-pedidos-ms
     logger.info(`Ejecuta microservcio obtener-pedidos-ms`);
-    const response = await axios.get(
-      `http://172.16.1.206:${process.env.PORT_OBTENER_PEDIDOS}/ms/obtener-pedidos`
-    );
-    logger.debug(
-      `Respuesta microservcio obtener-pedidos-ms ${JSON.stringify(
-        response.data
-      )}`
-    );
+    const response = await axios.get(`http://172.16.1.206:${process.env.PORT_OBTENER_PEDIDOS}/ms/obtener-pedidos`);
+    logger.debug(`Respuesta microservcio obtener-pedidos-ms ${JSON.stringify(response.data)}`);
 
     if (response.data.pedidos) {
       //microservicio obtener-orden-servicio-ms
